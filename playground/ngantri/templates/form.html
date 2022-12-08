@@ -1,0 +1,102 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <!--Django Form-->
+            <h2 class="my-4">Add a new person</h2>
+            <form method="post" enctype="multipart/form-data" id="personform">
+              {% csrf_token %}
+                <div>
+                    <div>First Name : </div>
+                    <div>{{ form.first_name }}</div>
+                </div>
+
+                <div>
+                    <div>Last Name : </div>
+                    <div>{{ form.last_name }}</div>
+                </div>
+                
+                <div>
+                    <video id="player" width="320" height="240" controls autoplay></video>
+                    <button id="capture" type="button">Capture</button>
+                    <canvas id="canvas" width="320" height="240"></canvas>
+                </div>
+                
+                
+                <button class="btn btn-dark my-4" type="submit">Submit</button>
+            </form>
+            
+              
+        
+          <!--Django Model-->
+        <h2 class="my-4">Person</h2>
+        <table>
+            {% for m in persons %}
+            <tr>
+                <td>
+                    {% if m.image.url is not None %}
+                        <img src="{{ m.image.url }}" class="card-img-top">
+                    {% endif %}
+                </td>
+                <td>
+                    {{ m.first_name }} {{ m.last_name}}
+                </td>
+                <td>
+                    <a href="/media/{{m.image}}">View Image</a>
+                </td>
+            </tr>
+
+            {% empty %}
+            <tr><td>No persons added.</td></tr>
+            {% endfor %}
+        </table>
+
+        <script>
+            const player = document.getElementById('player');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            const captureButton = document.getElementById('capture');
+            photo = document.getElementById('img_upload');
+            const constraints = {
+                video: true,
+            };
+
+            captureButton.addEventListener('click', () => {
+                context.drawImage(player, 0, 0, canvas.width, canvas.height);
+
+                
+                player.srcObject.getVideoTracks().forEach(track => track.stop());
+                var data = canvas.toDataURL('image/png');
+            });
+
+            navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+                // Attach the video stream to the video element and autoplay.
+                player.srcObject = stream;
+            });
+
+            $("#personform").submit(function (event) {
+                var img_data = canvas.toDataURL('image/png');
+                var formData = {
+                    first_name: $("#id_first_name").val(),
+                    last_name: $("#id_last_name").val(),
+                    csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+                    image: img_data,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'ngantri:upload' %}",
+                    data: formData,
+                    dataType: "json",
+                    encode: true,
+                }).done(function (data) {
+                    console.log(data);
+                });
+
+                event.preventDefault();
+            });
+        </script>
+    </body>
+</html>
