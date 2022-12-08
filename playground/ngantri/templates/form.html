@@ -25,7 +25,7 @@
                 </div>
                 
                 
-                <button class="btn btn-dark my-4" type="submit">Submit</button>
+                <button class="btn btn-dark my-4" type="submit" id="submitBtn">Submit</button>
             </form>
             
               
@@ -76,7 +76,18 @@
                 player.srcObject = stream;
             });
 
-            $("#personform").submit(function (event) {
+            function cleanup() {
+                $("#id_first_name").val("");
+                $("#id_last_name").val("");
+                navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+                // Attach the video stream to the video element and autoplay.
+                    player.srcObject = stream;
+                });
+                context.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            $("#submitBtn").click(function() {
+                
                 var img_data = canvas.toDataURL('image/png');
                 var formData = {
                     first_name: $("#id_first_name").val(),
@@ -87,16 +98,22 @@
 
                 $.ajax({
                     type: "POST",
-                    url: "{% url 'ngantri:upload' %}",
+                    url: "{% url 'ngantri:uploadsave' %}",
                     data: formData,
                     dataType: "json",
                     encode: true,
-                }).done(function (data) {
-                    console.log(data);
+                    statusCode: {
+                        200: function() {
+                            cleanup();
+                        }
+                    }
                 });
-
-                event.preventDefault();
+                
+                    
+                //event.preventDefault();
+                return false;
             });
+            
         </script>
     </body>
 </html>

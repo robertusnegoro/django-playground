@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from .form import PersonForm
 from .models import Person
 import logging
@@ -12,6 +12,16 @@ import pyqrcode
 logger = logging.getLogger(__name__)
 # Create your views here.
 def upload(request):
+    form = PersonForm()
+    persons = Person.objects.all()
+    logger.info("Persons data loaded")
+    return render(
+        request=request,
+        template_name="form.html",
+        context={"form": form, "persons": persons},
+    )
+
+def uploadSave(request):
     if request.method == "POST":
         logger.info(request.POST)
         form = PersonForm(request.POST, request.FILES)
@@ -19,7 +29,7 @@ def upload(request):
             logger.info("Form is valid")
             # form.save()
             first_name = request.POST['first_name']
-            last_name = request.POST['first_name']
+            last_name = request.POST['last_name']
             image_base64 = request.POST['image']
             dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
             ImageData = dataUrlPattern.match(image_base64).group(2)
@@ -34,15 +44,9 @@ def upload(request):
             person.save()
         else:
             logger.info(form.errors)
-        return redirect("ngantri:upload")
-    form = PersonForm()
-    persons = Person.objects.all()
-    logger.info("Persons data loaded")
-    return render(
-        request=request,
-        template_name="form.html",
-        context={"form": form, "persons": persons},
-    )
+        return HttpResponse("OK")
+    else:
+        return Http404()
 
 
 def test(request):
