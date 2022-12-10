@@ -175,3 +175,5 @@ cython_debug/
 playground/media/images/*
 
 *.svg
+
+.env.sh

@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "ngantri",
+    "qr_code",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -76,16 +77,20 @@ WSGI_APPLICATION = "playground.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES_CREDENTIAL = os.getenv("DB_PASSWORD", "")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_NAME = os.getenv("DB_NAME", "ngantridb")
+DB_PASS = os.getenv("DB_PASS", "")
+DB_PORT = int(os.getenv("DB_PORT", 5432))
+DB_USER = os.getenv("DB_USER", "robi")
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "ngantridb",
-        "HOST": "localhost",
-        "PORT": 15432,
-        "USER": "robi",
-        "PASSWORD": DATABASES_CREDENTIAL,
+        "NAME": DB_NAME,
+        "HOST": DB_HOST,
+        "PORT": DB_PORT,
+        "USER": DB_USER,
+        "PASSWORD": DB_PASS,
     }
 }
 
@@ -135,6 +140,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+MEDIA_QR_PATH = "%s/qr-images" % (MEDIA_ROOT)
 
 LOGGING = {
     "version": 1,

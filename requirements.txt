@@ -2,4 +2,4 @@ django
 psycopg2-binary
 pillow
 uuid
-pyqrcode
+django-qr-code

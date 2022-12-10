@@ -26,6 +26,7 @@
                 
                 
                 <button class="btn btn-dark my-4" type="submit" id="submitBtn">Submit</button>
+                <p id="infopanel"></p>
             </form>
             
               
@@ -96,6 +97,8 @@
                     image: img_data,
                 };
 
+                $("#infopanel").html("Form is in process, don't refresh yet ...");
+
                 $.ajax({
                     type: "POST",
                     url: "{% url 'ngantri:uploadsave' %}",
@@ -103,8 +106,12 @@
                     dataType: "json",
                     encode: true,
                     statusCode: {
-                        200: function() {
+                        200: function(data) {
                             cleanup();
+                            console.log(data);
+                            $("#infopanel").html("redirecting, don't refresh / reload ....");
+                            window.location.href = "/qrcode/" + data.id;
+                            
                         }
                     }
                 });
